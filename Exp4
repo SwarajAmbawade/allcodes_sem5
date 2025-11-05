@@ -97,3 +97,62 @@ BEGIN
 END $$;
 
 SELECT * FROM areas;
+
+
+
+OR 
+
+CREATE TABLE Borrower (
+    Roll_no INT,
+    NameOfBook VARCHAR(50),
+    DateOfIssue DATE,
+    Status CHAR(1)     -- 'I' for issued, 'R' for returned
+);
+
+CREATE TABLE Fine (
+    Roll_no INT,
+    DateOfReturn DATE,
+    Fine_Amount NUMERIC(8,2)
+);
+
+
+with a function
+CREATE OR REPLACE FUNCTION calculate_fine()
+RETURNS VOID
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    v_days INT;
+    v_fine NUMERIC(8,2);
+BEGIN
+    -- Loop through all currently issued books
+    FOR rec IN SELECT * FROM Borrower WHERE Status = 'I' LOOP
+        v_days := CURRENT_DATE - rec.DateOfIssue;
+
+        -- Fine calculation logic
+        IF v_days BETWEEN 15 AND 30 THEN
+            v_fine := v_days * 5;
+        ELSIF v_days > 30 THEN
+            v_fine := (30 * 5) + ((v_days - 30) * 50);
+        ELSE
+            v_fine := 0;
+        END IF;
+
+        -- Insert fine record
+        INSERT INTO Fine (Roll_no, DateOfReturn, Fine_Amount)
+        VALUES (rec.Roll_no, CURRENT_DATE, v_fine);
+
+        -- Update book status to Returned
+        UPDATE Borrower 
+        SET Status = 'R'
+        WHERE Roll_no = rec.Roll_no AND NameOfBook = rec.NameOfBook;
+
+        RAISE NOTICE 'Fine for Roll_no % (%): ₹%', rec.Roll_no, rec.NameOfBook, v_fine;
+    END LOOP;
+
+    RAISE NOTICE 'Fine calculation completed successfully for all issued books.';
+END;
+$$;
+
+SELECT calculate_fine();
