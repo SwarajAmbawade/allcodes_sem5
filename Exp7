@@ -1,0 +1,74 @@
+Experiment 7: Database Trigger (PostgreSQL)
+
+CREATE TABLE library (
+    book_id SERIAL PRIMARY KEY,
+    book_name VARCHAR(100),
+    author VARCHAR(50),
+    status VARCHAR(10)
+);
+
+CREATE TABLE library_audit (
+    audit_id SERIAL PRIMARY KEY,
+    book_id INT,
+    book_name VARCHAR(100),
+    author VARCHAR(50),
+    status VARCHAR(10),
+    operation VARCHAR(20),
+    changed_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE OR REPLACE FUNCTION audit_library_changes()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- For UPDATE or DELETE, store the old record in audit table
+    IF (TG_OP = 'UPDATE') THEN
+        INSERT INTO library_audit(book_id, book_name, author, status, operation)
+        VALUES (OLD.book_id, OLD.book_name, OLD.author, OLD.status, 'UPDATED');
+        RETURN NEW;
+
+    ELSIF (TG_OP = 'DELETE') THEN
+        INSERT INTO library_audit(book_id, book_name, author, status, operation)
+        VALUES (OLD.book_id, OLD.book_name, OLD.author, OLD.status, 'DELETED');
+        RETURN OLD;
+    END IF;
+END;
+$$;
+
+
+CREATE TRIGGER trg_library_audit
+AFTER UPDATE OR DELETE
+ON library
+FOR EACH ROW
+EXECUTE FUNCTION audit_library_changes();
+
+
+INSERT INTO library (book_name, author, status) VALUES
+('The Alchemist', 'Paulo Coelho', 'Available'),
+('Atomic Habits', 'James Clear', 'Issued'),
+('1984', 'George Orwell', 'Available');
+
+
+UPDATE library SET status = 'Returned' WHERE book_name = 'Atomic Habits';
+
+DELETE FROM library WHERE book_name = '1984';
+
+
+SELECT * FROM library_audit;
+
+
+BONUS 
+CREATE OR REPLACE FUNCTION log_update_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    RAISE NOTICE 'A change occurred in the library table!';
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_statement_level
+AFTER UPDATE OR DELETE ON library
+FOR EACH STATEMENT
+EXECUTE FUNCTION log_update_delete();
+
