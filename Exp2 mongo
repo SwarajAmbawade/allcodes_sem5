@@ -1,0 +1,32 @@
+Experiment 2: MongoDB – Aggregation and Indexing
+
+
+use studentDB
+db.students.insertMany([
+  { name: "Swaraj", branch: "Computer", marks: 85, city: "Pune" },
+  { name: "Rohan", branch: "IT", marks: 72, city: "Mumbai" },
+  { name: "Aditi", branch: "Computer", marks: 91, city: "Nagpur" },
+  { name: "Sneha", branch: "ENTC", marks: 65, city: "Pune" },
+  { name: "Raj", branch: "Computer", marks: 88, city: "Pune" },
+  { name: "Neha", branch: "IT", marks: 75, city: "Mumbai" }
+])
+
+
+db.students.aggregate([
+  { $group: { _id: "$branch", avgMarks: { $avg: "$marks" } } }
+])
+
+db.students.aggregate([
+  { $group: { _id: "$city", totalStudents: { $sum: 1 } } }
+])
+
+db.students.aggregate([
+  { $match: { marks: { $gt: 70 } } },
+  { $sort: { marks: -1 } }
+])
+
+
+db.students.createIndex({ branch: 1 })
+db.students.getIndexes()
+db.students.createIndex({ city: 1, marks: -1 })
+db.students.dropIndex({ branch: 1 })
