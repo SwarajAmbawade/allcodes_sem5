@@ -1,0 +1,99 @@
+Experiment 4: Unnamed PL/pgSQL Code Block
+
+CREATE TABLE Borrower (
+    Roll_no INT PRIMARY KEY,
+    Name VARCHAR(50),
+    DateOfIssue DATE,
+    NameOfBook VARCHAR(50),
+    Status CHAR(1)
+);
+
+CREATE TABLE Fine (
+    Roll_no INT,
+    Date DATE,
+    Amt NUMERIC(8,2)
+);
+
+
+INSERT INTO Borrower VALUES
+(101, 'Swara', '2025-10-01', 'DBMS', 'I'),
+(102, 'Rohit', '2025-09-20', 'OOP', 'I'),
+(103, 'Aarav', '2025-09-05', 'SE', 'I');
+
+
+DO $$
+DECLARE
+    v_roll Borrower.Roll_no%TYPE := 101;       -- input roll number
+    v_book Borrower.NameOfBook%TYPE := 'DBMS'; -- input book name
+    v_days INT;
+    v_fine NUMERIC(8,2);
+    v_issue_date DATE;
+BEGIN
+    -- Fetch issue date
+    SELECT DateOfIssue INTO v_issue_date 
+    FROM Borrower 
+    WHERE Roll_no = v_roll AND NameOfBook = v_book;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'Record not found for Roll_no % and Book %', v_roll, v_book;
+        RETURN;
+    END IF;
+
+    -- Calculate number of days
+    v_days := CURRENT_DATE - v_issue_date;
+
+    -- Fine calculation
+    IF v_days BETWEEN 15 AND 30 THEN
+        v_fine := v_days * 5;
+    ELSIF v_days > 30 THEN
+        v_fine := (30 * 5) + ((v_days - 30) * 50);
+    ELSE
+        v_fine := 0;
+    END IF;
+
+    -- Insert fine record
+    INSERT INTO Fine VALUES (v_roll, CURRENT_DATE, v_fine);
+
+    -- Update book status
+    UPDATE Borrower 
+    SET Status = 'R' 
+    WHERE Roll_no = v_roll AND NameOfBook = v_book;
+
+    RAISE NOTICE 'Fine calculated: ₹%', v_fine;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'An error occurred: %', SQLERRM;
+END $$;
+
+
+SELECT * FROM Fine;
+SELECT * FROM Borrower;
+
+
+OR
+
+
+CREATE TABLE areas (
+    radius NUMERIC(5,2),
+    area NUMERIC(10,2)
+);
+
+DO $$
+DECLARE
+    r NUMERIC(5,2);
+    a NUMERIC(10,2);
+BEGIN
+    FOR r IN 5..9 LOOP
+        BEGIN
+            a := 3.14159 * r * r;  -- area formula πr²
+            INSERT INTO areas VALUES (r, a);
+            RAISE NOTICE 'Radius: %, Area: %', r, a;
+        EXCEPTION
+            WHEN OTHERS THEN
+                RAISE NOTICE 'Error inserting for radius %: %', r, SQLERRM;
+        END;
+    END LOOP;
+END $$;
+
+SELECT * FROM areas;
