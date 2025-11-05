@@ -30,3 +30,6 @@ db.students.createIndex({ branch: 1 })
 db.students.getIndexes()
 db.students.createIndex({ city: 1, marks: -1 })
 db.students.dropIndex({ branch: 1 })
+
+
+college>db.teachers.find ( {age : {$lte : 30} ) . explain("executionStats")
