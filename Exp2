@@ -1,0 +1,55 @@
+For MYsql use mysql command line or use 
+mysql -u root -p
+
+EXPRIMENT – 2 SQL Queries:
+
+CREATE DATABASE college;
+USE college;
+
+CREATE TABLE department (
+  dept_id INT PRIMARY KEY AUTO_INCREMENT,
+  dept_name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE student (
+  student_id INT PRIMARY KEY AUTO_INCREMENT,
+  student_name VARCHAR(50) NOT NULL,
+  age INT CHECK (age >= 18),
+  dept_id INT,
+  email VARCHAR(100) UNIQUE,
+  CONSTRAINT fk_dept FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+INSERT INTO department (dept_name) VALUES ('Computer Engg'), ('IT'), ('AI & DS');
+INSERT INTO student (student_name, age, dept_id, email)
+VALUES
+('Siddhesh Agarwal', 20, 1, 'siddhesh@example.com'),
+('Riya Patil', 21, 2, 'riya@example.com'),
+('Aarav Joshi', 22, 3, 'aarav@example.com');
+
+CREATE VIEW student_info AS
+SELECT s.student_name, s.email, d.dept_name
+FROM student s
+JOIN department d ON s.dept_id = d.dept_id;
+
+SELECT * FROM student_info;
+
+CREATE INDEX idx_name ON student(student_name);
+SHOW INDEX FROM student;
+
+CREATE TABLE seq_demo (
+  id INT NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (id)
+);
+
+INSERT INTO seq_demo VALUES (), (), ();
+SELECT * FROM seq_demo;
+
+SELECT student_name AS name, email AS mail FROM student;
+
+DROP VIEW student_info;
+DROP INDEX idx_name ON student;
+DROP TABLE seq_demo;
+DROP TABLE student;
+DROP TABLE department;
+DROP DATABASE college;
