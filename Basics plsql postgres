@@ -1,0 +1,33 @@
+See all available databases
+\l
+\list
+
+Create a new database
+CREATE DATABASE college;
+
+Connect to / Continue with an existing database
+\c college
+
+Show all tables inside current database
+\dt
+
+Describe structure of a table
+\d student
+
+See which database you’re currently connected to
+SELECT current_database();
+
+View all data from a table
+SELECT * FROM student;
+
+Delete / Drop a database
+DROP DATABASE college;
+	
+Create database only if it doesn’t exist
+CREATE DATABASE IF NOT EXISTS college;
+
+Drop database only if it exists
+DROP DATABASE IF EXISTS college;
+
+Quit PostgreSQL
+\q
