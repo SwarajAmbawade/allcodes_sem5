@@ -1,0 +1,67 @@
+Experiment 5: PL/SQL Block – Stored Procedure and Stored Function
+
+CREATE TABLE stud_marks (
+    name VARCHAR(50),
+    total_marks INT
+);
+
+CREATE TABLE result (
+    roll SERIAL PRIMARY KEY,
+    name VARCHAR(50),
+    class VARCHAR(30)
+);
+
+
+INSERT INTO stud_marks (name, total_marks) VALUES
+('Swara', 1450),
+('Riya', 1000),
+('Aman', 950),
+('Neha', 870),
+('Karan', 820);
+
+CREATE OR REPLACE PROCEDURE proc_grade()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    rec RECORD;
+    grade TEXT;
+BEGIN
+    FOR rec IN SELECT * FROM stud_marks LOOP
+        IF rec.total_marks BETWEEN 990 AND 1500 THEN
+            grade := 'Distinction';
+        ELSIF rec.total_marks BETWEEN 900 AND 989 THEN
+            grade := 'First Class';
+        ELSIF rec.total_marks BETWEEN 825 AND 899 THEN
+            grade := 'Higher Second Class';
+        ELSE
+            grade := 'Fail';
+        END IF;
+
+        INSERT INTO result (name, class)
+        VALUES (rec.name, grade);
+    END LOOP;
+
+    RAISE NOTICE 'Grades inserted successfully.';
+END;
+$$;
+
+CALL proc_grade();
+
+
+CREATE OR REPLACE FUNCTION get_grade(student_name TEXT)
+RETURNS TEXT
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    student_class TEXT;
+BEGIN
+    SELECT class INTO student_class FROM result WHERE name = student_name;
+    IF student_class IS NULL THEN
+        RETURN 'Student not found';
+    END IF;
+    RETURN student_class;
+END;
+$$;
+
+
+SELECT get_grade('Swara');
