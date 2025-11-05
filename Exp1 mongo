@@ -1,0 +1,31 @@
+Exp 1 mongo:  MongoDB Queries: CRUD operation
+Start Mongo Shell : mongosh
+
+use studentDB
+db.students.insertMany([
+  { _id: 1, name: "Sahil", branch: "Computer", marks: 85, city: "Pune" },
+  { _id: 2, name: "Rohan", branch: "IT", marks: 72, city: "Mumbai" },
+  { _id: 3, name: "Aditi", branch: "Computer", marks: 91, city: "Nagpur" },
+  { _id: 4, name: "Sneha", branch: "ENTC", marks: 65, city: "Pune" }
+])
+db.students.find().pretty()
+
+db.students.find()
+db.students.find({ branch: "Computer" })
+db.students.find({ marks: { $gt: 80 } })
+db.students.find({ $or: [ { city: "Pune" }, { marks: { $gt: 90 } } ] })
+
+db.students.updateOne(
+  { name: "Rohan" },
+  { $set: { marks: 80 } }
+)
+db.students.updateMany(
+  { city: "Pune" },
+  { $set: { branch: "AI&DS" } }
+)
+db.students.save({ _id: 2, name: "Rohan", branch: "IT", marks: 88, city: "Mumbai" })
+
+db.students.deleteOne({ name: "Sneha" })
+db.students.deleteMany({ marks: { $lt: 70 } })
+db.students.drop()        
+db.dropDatabase()         
