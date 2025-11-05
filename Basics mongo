@@ -1,0 +1,37 @@
+Start MongoDB Shell
+mongosh
+
+Show All Databases
+show dbs
+
+Create or Switch to a Database
+use studentDB
+
+Check Current Database
+db
+
+Show All Collections (Tables)
+show collections
+
+Create a Collection (Optional)
+db.createCollection("students")
+
+Insert Data
+db.students.insertOne({ name: "Swaraj", marks: 90, city: "Pune" })
+
+View All Documents
+db.students.find().pretty()
+
+Continue Working With Previous Database
+use studentDB
+
+Delete a Collection
+db.students.drop()
+
+Delete a Database
+db.dropDatabase()
+
+Helpful Info Commands
+db.stats()        // Shows stats of current DB
+db.students.countDocuments()  // Counts all documents
+db.students.findOne()         // Shows a single document
