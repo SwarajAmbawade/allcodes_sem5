@@ -1,0 +1,42 @@
+Experiment 3: MongoDB – Map Reduce Operations
+
+use salesDB
+db.sales.insertMany([
+  { _id: 1, item: "pen", price: 10, quantity: 2, city: "Pune" },
+  { _id: 2, item: "pencil", price: 5, quantity: 5, city: "Mumbai" },
+  { _id: 3, item: "notebook", price: 50, quantity: 3, city: "Pune" },
+  { _id: 4, item: "eraser", price: 8, quantity: 4, city: "Nagpur" },
+  { _id: 5, item: "pen", price: 10, quantity: 6, city: "Mumbai" }
+])
+
+var mapFunction = function() {
+  emit(this.item, this.price * this.quantity);
+};
+
+var reduceFunction = function(key, values) {
+  return Array.sum(values);
+};
+
+db.sales.mapReduce(
+  mapFunction,
+  reduceFunction,
+  { out: "total_sales" }
+)
+
+db.total_sales.find().pretty()
+
+
+
+BONUS
+
+var mapByCity = function() {
+  emit(this.city, this.price * this.quantity);
+};
+
+db.sales.mapReduce(
+  mapByCity,
+  reduceFunction,
+  { out: "sales_by_city" }
+)
+
+db.sales_by_city.find().pretty()
