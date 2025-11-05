@@ -1,0 +1,90 @@
+Experiment – 3 SQL Queries - all types of Join, Sub-Query and View:
+
+CREATE DATABASE college;
+USE college;
+
+CREATE TABLE department (
+  dept_id INT PRIMARY KEY AUTO_INCREMENT,
+  dept_name VARCHAR(50)
+);
+
+CREATE TABLE student (
+  student_id INT PRIMARY KEY AUTO_INCREMENT,
+  student_name VARCHAR(50) NOT NULL,
+  age INT,
+  marks INT,
+  dept_id INT,
+  FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+CREATE TABLE course (
+  course_id INT PRIMARY KEY AUTO_INCREMENT,
+  course_name VARCHAR(50),
+  dept_id INT,
+  FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+);
+
+
+INSERT INTO department (dept_name)
+VALUES ('Computer Engg'), ('IT'), ('AI & DS');
+
+INSERT INTO student (student_name, age, marks, dept_id)
+VALUES
+('Siddhesh Agarwal', 20, 85, 1),
+('Riya Patil', 21, 78, 2),
+('Aarav Joshi', 22, 90, 3),
+('Sneha Deshmukh', 23, 88, 2);
+
+INSERT INTO course (course_name, dept_id)
+VALUES
+('DBMS', 1),
+('Networking', 2),
+('Machine Learning', 3),
+('Web Development', 1);
+
+
+INNER JOIN:
+SELECT s.student_name, d.dept_name
+FROM student s
+INNER JOIN department d ON s.dept_id = d.dept_id;
+
+SELECT s.student_name, d.dept_name
+FROM student s
+LEFT JOIN department d ON s.dept_id = d.dept_id;
+
+SELECT s.student_name, d.dept_name
+FROM student s
+RIGHT JOIN department d ON s.dept_id = d.dept_id;
+
+
+SUBQUERIES
+SELECT student_name, marks
+FROM student
+WHERE marks > (SELECT AVG(marks) FROM student);
+
+SELECT student_name
+FROM student
+WHERE dept_id = (SELECT dept_id FROM department WHERE dept_name = 'IT');
+
+SELECT student_name, marks
+FROM student
+WHERE marks = (SELECT MAX(marks) FROM student);
+
+
+VIEW
+CREATE VIEW student_department_view AS
+SELECT s.student_name, s.marks, d.dept_name
+FROM student s
+JOIN department d ON s.dept_id = d.dept_id;
+
+SELECT * FROM student_department_view;
+
+CREATE VIEW high_scorers AS
+SELECT student_name, marks
+FROM student
+WHERE marks > 80;
+
+SELECT * FROM high_scorers;
+
+DROP VIEW high_scorers;
+DROP VIEW student_department_view;
