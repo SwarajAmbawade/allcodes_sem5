@@ -1,0 +1,54 @@
+Experiment 6: PL/pgSQL with Cursors
+
+CREATE TABLE o_rollcall (
+    roll_no INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+CREATE TABLE n_rollcall (
+    roll_no INT PRIMARY KEY,
+    name VARCHAR(50)
+);
+
+
+INSERT INTO o_rollcall VALUES
+(1, 'Swara'),
+(2, 'Riya'),
+(3, 'Aman'),
+(4, 'Karan');
+
+INSERT INTO n_rollcall VALUES
+(1, 'Swara'),
+(3, 'Aman');  -- duplicate intentionally to test skip
+
+DO $$
+DECLARE
+    rec RECORD;
+    c_rollcall CURSOR (min_roll INT) FOR
+        SELECT * FROM o_rollcall WHERE roll_no >= min_roll;
+BEGIN
+    OPEN c_rollcall(1);
+    LOOP
+        FETCH c_rollcall INTO rec;
+        EXIT WHEN NOT FOUND;
+
+        BEGIN
+            -- Check if already exists in n_rollcall
+            IF NOT EXISTS (SELECT 1 FROM n_rollcall WHERE roll_no = rec.roll_no) THEN
+                INSERT INTO n_rollcall VALUES (rec.roll_no, rec.name);
+                RAISE NOTICE 'Inserted: % - %', rec.roll_no, rec.name;
+            ELSE
+                RAISE NOTICE 'Skipped (Already Exists): % - %', rec.roll_no, rec.name;
+            END IF;
+
+        EXCEPTION
+            WHEN OTHERS THEN
+                RAISE NOTICE 'Error inserting roll %: %', rec.roll_no, SQLERRM;
+        END;
+    END LOOP;
+
+    CLOSE c_rollcall;
+END $$;
+
+
+SELECT * FROM n_rollcall;
