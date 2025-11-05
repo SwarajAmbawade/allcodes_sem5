@@ -1,0 +1,39 @@
+1. Show all databases
+SHOW DATABASES;
+
+
+2. Create a new database
+CREATE DATABASE college;
+
+
+3. Use (or continue with) a database
+USE college;
+
+
+4. Show all tables in the current database
+SHOW TABLES;
+
+
+5. See the structure of a table
+DESC student;
+
+
+6. View all data inside a table
+SELECT * FROM student;
+
+
+7. Delete or drop a database
+DROP DATABASE college;
+
+
+8. If you want to create a database with the same name again
+CREATE DATABASE IF NOT EXISTS college;
+
+9. Check which database you’re currently using
+SELECT DATABASE();
+
+10. Rename a database (indirect way)
+CREATE DATABASE new_name;
+USE old_name;
+SHOW TABLES;
+-- then export or recreate tables in new_name manually if needed
